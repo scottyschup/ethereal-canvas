@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style media="screen">
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #main {
+        background-color: #000;
+        height: 100vh;
+        width: 100vw;
+      }
+      .tile {
+        fill: #222;
+        transition: fill 10s;
+      }
+      .tile:hover {
+        fill: #fff;
+        transition: fill .05s;
+      }
+    </style>
+  </head>
+  <body>
+    <svg
+      id="main"
+      x="0"
+      y="0"
+      width="100%"
+      height="100%"
+      viewBox="0 0 100 100"
+      preserveAspectRatio="none">
+    </svg>
+    <script type="text/javascript">
+      (function () {
+        function createRect() {
+          var el = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          el.setAttr = function (attr, val) {
+            this.setAttribute(attr, val);
+            return this;
+          }
+          return el;
+        }
+        var mainSvg = document.getElementById("main");
+        for (var y = 0; y < 100; y ++) {
+          for (var x = 0; x < 100; x ++) {
+            console.log(x, y)
+            var el = createRect()
+              .setAttr('class', 'tile')
+              .setAttr('width', '1%')
+              .setAttr('height', '1%')
+              .setAttr('x', x)
+              .setAttr('y', y);
+
+            // el.addEventListener('hover', function () {
+            //   el.addClass('hover');
+            //   el.
+            // })
+
+            mainSvg.appendChild(el);
+          }
+        }
+      })();
+    </script>
+  </body>
+</html>
