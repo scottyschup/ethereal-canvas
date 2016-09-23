@@ -5,8 +5,26 @@
     <title></title>
     <style media="screen">
       body {
+        height: 100vh;
         margin: 0;
         padding: 0;
+        width: 100vw;
+      }
+      #spinner {
+        background: url('spinner-big.gif');
+        background-position: 50% 45%;
+        background-repeat: no-repeat;
+        height: 100vh;
+        left: 0;
+        margin: 0;
+        padding: 0;
+        position: fixed;
+        top: 0;
+        visibility: hidden;
+        width: 100vw;
+      }
+      #spinner.active {
+        visibility: visible;
       }
       #main {
         background-color: #000;
@@ -23,7 +41,8 @@
       }
     </style>
   </head>
-  <body>
+  <body id="body" class="spinner">
+    <div id="spinner" class="active"></div>
     <svg
       id="main"
       x="0"
@@ -35,6 +54,7 @@
     </svg>
     <script type="text/javascript">
       (function () {
+        var start = new Date();
         function createRect() {
           var el = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
           el.setAttr = function (attr, val) {
@@ -43,25 +63,78 @@
           }
           return el;
         }
-        var mainSvg = document.getElementById("main");
-        for (var y = 0; y < 100; y ++) {
-          for (var x = 0; x < 100; x ++) {
-            console.log(x, y)
-            var el = createRect()
-              .setAttr('class', 'tile')
-              .setAttr('width', '1%')
-              .setAttr('height', '1%')
-              .setAttr('x', x)
-              .setAttr('y', y);
 
-            // el.addEventListener('hover', function () {
-            //   el.addClass('hover');
-            //   el.
-            // })
+        function addAttributes (el, x, y, xMax, yMax) {
+          el.setAttr('class', 'tile')
+            .setAttr('width', 100 / xMax + '%')
+            .setAttr('height', 100 / yMax + '%')
+            .setAttr('x', x * 100 / xMax)
+            .setAttr('y', y * 100 / yMax);
+          return el;
+        }
 
-            mainSvg.appendChild(el);
+        var queue = [];
+
+        function dup (obj) {
+          var dupObj;
+          if (Array.isArray(obj)) {
+            dupObj = [];
+            for (var i = 0; i < obj.length; i ++) {
+              dupObj[i] = obj[i];
+            }
+          } else if (typeof obj === 'object') {
+            dupObj = {};
+            for (var prop in obj) {
+              if (typeof obj[prop] === 'object') {
+                dupObj[prop] = dup(obj[prop]);
+              } else {
+                dupObj[prop] = obj[prop];
+              }
+            }
+          } else {
+            return obj;
+          }
+          return dupObj;
+        }
+
+        function dequeue () {
+          var current = queue.shift();
+          current.fn.apply(null, current.args);
+        }
+
+        function enqueue (fn, args) {
+          queue.push({ fn: fn, args: args });
+        }
+
+        function processQueue (speed) {
+          speed = speed || 2
+          setInterval(function () {
+            var i, limit = Math.min(speed, queue.length);
+            for (i = 0; i < limit; i ++) {
+              dequeue();
+            }
+          });
+        }
+
+        processQueue(50000);
+        var yMax = 150;
+        var xMax = 300;
+        var mainSvg = document.getElementById('main');
+        for (var y = 0; y < yMax; y ++) {
+          for (var x = 0; x < xMax; x ++) {
+            enqueue(function () {
+              var el = createRect();
+              var args = [].slice.call(arguments)
+              args.unshift(el);
+              el = addAttributes.apply(null, args);
+              mainSvg.appendChild(el);
+            }, dup([x, y, xMax, yMax]));
           }
         }
+        enqueue(function () {
+          document.getElementById('spinner').classList.remove('active');
+          console.log(new Date() - start);
+        });
       })();
     </script>
   </body>
