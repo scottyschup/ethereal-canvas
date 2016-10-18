@@ -37,11 +37,11 @@
       }
       .tile:hover {
         fill: #fff;
-        transition: fill .05s;
+        transition: fill 0s;
       }
     </style>
   </head>
-  <body id="body" class="spinner">
+  <body id="body">
     <div id="spinner" class="active"></div>
     <svg
       id="main"
@@ -107,24 +107,28 @@
         }
 
         function processQueue (speed) {
-          speed = speed || 2
+          speed = speed || 500;
           setInterval(function () {
             var i, limit = Math.min(speed, queue.length);
             for (i = 0; i < limit; i ++) {
               dequeue();
             }
-          });
+            if (limit > 0) {
+              console.log('drew', limit, 'rectangles;', queue.length, 'left in Q');
+            }
+          })
         }
 
-        processQueue(50000);
-        var yMax = 150;
-        var xMax = 300;
+        processQueue(10);
+        var yMax = 50;
+        var xMax = 100;
         var mainSvg = document.getElementById('main');
-        for (var y = 0; y < yMax; y ++) {
-          for (var x = 0; x < xMax; x ++) {
+        var x, y, el, args;
+        for (y = 0; y < yMax; y ++) {
+          for (x = 0; x < xMax; x ++) {
             enqueue(function () {
-              var el = createRect();
-              var args = [].slice.call(arguments)
+              el = createRect();
+              args = [].slice.call(arguments)
               args.unshift(el);
               el = addAttributes.apply(null, args);
               mainSvg.appendChild(el);
